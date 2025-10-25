@@ -5,7 +5,7 @@ require 'strscan'
 #   WS   ::= \s+
 #   PLUS ::= '+'
 #
-# expr ::= DIGIT | DIGIT ws PLUS ws DIGIT
+# expr ::= DIGIT | (DIGIT ws PLUS ws DIGIT)*
 
 class Lexer
   def initialize(value)
@@ -43,19 +43,19 @@ class Parser
   private
 
   def parse_expr
-    left = parse_int
-    advance
-    if match?(:PLUS)
+    result = parse_int
+    while match?(:PLUS)
       advance
-      right = parse_int
-      left + right
-    else
-      left
+      rhs = parse_int
+      result += rhs
     end
+    result
   end
 
   def parse_int
-    @cur_pos[1].to_i
+    v = @cur_pos[1].to_i
+    advance
+    v
   end
 
   def advance
@@ -73,3 +73,5 @@ puts Parser.new(' 234 ').parse # => 234
 puts Parser.new(234).parse # => 234
 puts Parser.new('1 + 1').parse # => 2
 puts Parser.new('1 + 3').parse # => 4
+puts Parser.new('1 + 1 + 1').parse # => 3
+puts Parser.new('10 + 10 + 10').parse # => 3
