@@ -5,7 +5,8 @@ require 'strscan'
 #   WS   ::= \s+
 #   PLUS ::= '+'
 #
-# expr ::= DIGIT | (DIGIT ws PLUS ws DIGIT)*
+# Grammer:
+#   expr ::= INT ((PLUS | MINUS) INT)*
 
 class Lexer
   def initialize(value)
@@ -21,6 +22,8 @@ class Lexer
                [:DIGIT, n]
              elsif @scan.scan(/\+/)
                [:PLUS, '+']
+             elsif @scan.scan(/-/)
+               [:MINUS, '-']
              end
   end
 
@@ -44,10 +47,11 @@ class Parser
 
   def parse_expr
     result = parse_int
-    while match?(:PLUS)
+    while match?(:PLUS) || match?(:MINUS)
+      op = @cur_pos[0]
       advance
       rhs = parse_int
-      result += rhs
+      result = op == :PLUS ? result + rhs : result - rhs
     end
     result
   end
@@ -74,4 +78,5 @@ puts Parser.new(234).parse # => 234
 puts Parser.new('1 + 1').parse # => 2
 puts Parser.new('1 + 3').parse # => 4
 puts Parser.new('1 + 1 + 1').parse # => 3
-puts Parser.new('10 + 10 + 10').parse # => 3
+puts Parser.new('10 + 10 + 10').parse # => 30
+puts Parser.new('50 - 20 + 10').parse # => 40
