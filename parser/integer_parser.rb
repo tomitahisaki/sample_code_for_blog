@@ -47,13 +47,14 @@ class Parser
 
   def parse_expr
     result = parse_int
-    while match?(:PLUS) || match?(:MINUS)
+    if match?(:PLUS) || match?(:MINUS)
       op = @cur_pos[0]
-      advance
       rhs = parse_int
       result = op == :PLUS ? result + rhs : result - rhs
+      parse_expr
+    else
+      result
     end
-    result
   end
 
   def parse_int
@@ -70,6 +71,12 @@ class Parser
     @cur_pos && @cur_pos[0] == type
   end
 end
+
+# if __FILE__ == $0
+#   print '入力してください: '
+#   input = gets.chomp
+#   puts "結果: #{Parser.new(input).parse}"
+# end
 
 puts Parser.new('1').parse # => 1
 puts Parser.new(' 1 ').parse # => 1
