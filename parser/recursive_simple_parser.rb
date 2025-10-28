@@ -27,6 +27,8 @@ class Lexer
                [:MINUS, '-']
              elsif @scan.scan(/\*/)
                [:MUL, '*']
+             elsif @scan.scan(%r{/})
+               [:DIV, '/']
              end
   end
 
@@ -61,10 +63,11 @@ class Parser
 
   def parse_term
     left = parse_factor
-    while match?(:MUL)
+    while match?(:MUL) || match?(:DIV)
+      op = @cur_pos[0]
       advance # 演算子を進める
       right = parse_factor
-      left *= right
+      left = op == :MUL ? left * right : left / right
     end
     left
   end
@@ -84,6 +87,7 @@ class Parser
   end
 end
 
+# tests for addition and subtraction
 # puts Parser.new('1').parse # 1
 # puts Parser.new(' 1 ').parse # => 1
 # puts Parser.new(' 234 ').parse # => 234
@@ -94,8 +98,16 @@ end
 # puts Parser.new('10 + 10 + 10').parse # => 30
 # puts Parser.new('50 - 20 + 10').parse # => 40
 
-puts Parser.new('2 * 3').parse # => 6
-puts Parser.new('1 + 2 * 3').parse # => 7   (1 + (2*3))
-puts Parser.new('2 * 3 + 4').parse      # => 10  ((2*3) + 4)
-puts Parser.new('2 + 3 * 4 + 5').parse  # => 19
-puts Parser.new('2 * 3 * 4').parse      # => 24  (左結合)
+# test for multiplication
+# puts Parser.new('2 * 3').parse # => 6
+# puts Parser.new('1 + 2 * 3').parse # => 7   (1 + (2*3))
+# puts Parser.new('2 * 3 + 4').parse      # => 10  ((2*3) + 4)
+# puts Parser.new('2 + 3 * 4 + 5').parse  # => 19
+# puts Parser.new('2 * 3 * 4').parse      # => 24  (左結合)
+
+# tests for division
+# puts Parser.new('10 / 2').parse # => 5
+# puts Parser.new('20 + 10 / 2').parse # => 25
+# puts Parser.new('20 / 2 + 10').parse # => 20
+# puts Parser.new('20 / 2 * 3').parse # => 30
+# puts Parser.new('20 / 2 - 5').parse # => 5
