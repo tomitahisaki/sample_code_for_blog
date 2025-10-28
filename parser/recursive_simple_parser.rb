@@ -6,8 +6,8 @@ require 'strscan'
 #   PLUS ::= '+'
 #
 # expr   ::= term ( (PLUS | MINUS) term )*
-# term   ::= factor ( MUL )  factor )*
-# factor ::= (PLUS | MINUS) factor | INT
+# term   ::= factor ( MUL | DIV )  factor )*
+# factor ::= INT | '(' expr ')'
 
 class Lexer
   def initialize(value)
@@ -29,6 +29,10 @@ class Lexer
                [:MUL, '*']
              elsif @scan.scan(%r{/})
                [:DIV, '/']
+             elsif @scan.scan(/\(/)
+               [:LPAREN, '(']
+             elsif @scan.scan(/\)/)
+               [:RPAREN, ')']
              end
   end
 
@@ -73,9 +77,16 @@ class Parser
   end
 
   def parse_factor
-    v = @cur_pos[1].to_i
-    advance
-    v
+    if match?(:LPAREN)
+      advance # '('を進める
+      v = parse_expr
+      advance # ')'を進める
+      v
+    else
+      value = @cur_pos[1].to_i
+      advance # 数字を進める
+      value
+    end
   end
 
   def advance
