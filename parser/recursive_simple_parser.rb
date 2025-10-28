@@ -6,7 +6,7 @@ require 'strscan'
 #   PLUS ::= '+'
 #
 # expr   ::= term ( (PLUS | MINUS) term )*
-# term   ::= factor ( TIMES )  factor )*
+# term   ::= factor ( MUL )  factor )*
 # factor ::= (PLUS | MINUS) factor | INT
 
 class Lexer
@@ -26,7 +26,7 @@ class Lexer
              elsif @scan.scan(/-/)
                [:MINUS, '-']
              elsif @scan.scan(/\*/)
-               [:TIMES, '*']
+               [:MUL, '*']
              end
   end
 
@@ -61,7 +61,7 @@ class Parser
 
   def parse_term
     left = parse_factor
-    while match?(:TIMES)
+    while match?(:MUL)
       advance # 演算子を進める
       right = parse_factor
       left *= right
@@ -94,8 +94,8 @@ end
 # puts Parser.new('10 + 10 + 10').parse # => 30
 # puts Parser.new('50 - 20 + 10').parse # => 40
 
-# puts Parser.new('2 * 3').parse          # => 6
+puts Parser.new('2 * 3').parse # => 6
 puts Parser.new('1 + 2 * 3').parse # => 7   (1 + (2*3))
-# puts Parser.new('2 * 3 + 4').parse      # => 10  ((2*3) + 4)
-# puts Parser.new('2 + 3 * 4 + 5').parse  # => 19
-# puts Parser.new('2 * 3 * 4').parse      # => 24  (左結合)
+puts Parser.new('2 * 3 + 4').parse      # => 10  ((2*3) + 4)
+puts Parser.new('2 + 3 * 4 + 5').parse  # => 19
+puts Parser.new('2 * 3 * 4').parse      # => 24  (左結合)
