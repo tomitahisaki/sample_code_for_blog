@@ -79,7 +79,7 @@ class Parser
   def parse_factor
     if match?(:LPAREN)
       advance # '('を進める
-      v = parse_expr
+      v = parse_expr # 再帰的にexprを解析
       advance # ')'を進める
       v
     else
