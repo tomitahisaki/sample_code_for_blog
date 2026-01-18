@@ -122,3 +122,5 @@ end
 # puts Parser.new('20 / 2 + 10').parse # => 20
 # puts Parser.new('20 / 2 * 3').parse # => 30
 # puts Parser.new('20 / 2 - 5').parse # => 5
+
+puts Parser.new('(1 + (2 * 3)) - 4').parse # => 3
